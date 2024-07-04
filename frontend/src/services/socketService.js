@@ -18,7 +18,7 @@ socket.on('disconnect', () => {
 
 export const subscribeToPriceUpdates = (callback) => {
   socket.on('priceUpdate', (update) => {
-    console.log('Received price update:', update);
+    console.log('Received price  update:', update);
     callback(update); // Pass data to the callback function provided by the component
   });
 };

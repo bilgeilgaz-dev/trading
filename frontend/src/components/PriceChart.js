@@ -102,11 +102,6 @@ const PriceChart = () => {
   return (
     <div>
       <h1>Real-Time Price Chart</h1>
-      {/* <select multiple value={selectedPairs} onChange={handlePairChange}>
-        {Object.keys(pairs).map(pair => (
-          <option key={pair} value={pair}>{pairs[pair]}</option>
-        ))}
-      </select> */}
       <Line data={chartData} />
     </div>
   );

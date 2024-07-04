@@ -1,48 +1,80 @@
 import React, { useState } from 'react';
+import io from 'socket.io-client';
 
-const OrderForm = ({ onOrderPlaced }) => {
-  const [order, setOrder] = useState({
-    pair: 'BTC/USDT',
-    type: 'buy',
-    amount: 0,
-  });
+const socket = io('http://localhost:4000');
 
-  const handleChange = (e) => {
-    setOrder({
-      ...order,
-      [e.target.name]: e.target.value,
-    });
-  };
+const OrderForm = ({ balance }) => {
+  const [orderType, setOrderType] = useState('BUY LIMIT');
+  const [price, setPrice] = useState('');
+  const [quantity, setQuantity] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onOrderPlaced(order);
+    const newOrder = {
+      type: orderType,
+      price: parseFloat(price),
+      quantity: parseFloat(quantity),
+      total: parseFloat(price) * parseFloat(quantity),
+      status: 'PENDING',
+      pair: 'BTC/USDT' // Change based on selected pair
+    };
+    socket.emit('new_order', newOrder);
+  };
+
+  const handleOrderTypeChange = (e) => {
+    setOrderType(e.target.value);
+  };
+
+  const handlePriceChange = (e) => {
+    setPrice(e.target.value);
+  };
+
+  const handleQuantityChange = (e) => {
+    setQuantity(e.target.value);
+  };
+
+  const handleSliderChange = (e) => {
+    const percentage = parseInt(e.target.value, 10);
+    const maxQuantity = balance / parseFloat(price);
+    setQuantity((maxQuantity * percentage / 100).toFixed(2));
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Pair:
-        <select name="pair" value={order.pair} onChange={handleChange}>
-          <option value="BTC/USDT">BTC/USDT</option>
-          <option value="ETH/BTC">ETH/BTC</option>
-          <option value="LTC/USDT">LTC/USDT</option>
-          <option value="XRP/USDT">XRP/USDT</option>
-        </select>
-      </label>
-      <label>
-        Type:
-        <select name="type" value={order.type} onChange={handleChange}>
-          <option value="buy">Buy</option>
-          <option value="sell">Sell</option>
-        </select>
-      </label>
-      <label>
-        Amount:
-        <input type="number" name="amount" value={order.amount} onChange={handleChange} />
-      </label>
-      <button type="submit">Place Order</button>
-    </form>
+    <div>
+      <h2>Create Order</h2>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Order Type:
+          <select value={orderType} onChange={handleOrderTypeChange}>
+            <option value="BUY LIMIT">BUY LIMIT</option>
+            <option value="SELL LIMIT">SELL LIMIT</option>
+            <option value="MARKET BUY">MARKET BUY</option>
+            <option value="MARKET SELL">MARKET SELL</option>
+          </select>
+        </label>
+        <label>
+          Price:
+          <input type="number" value={price} onChange={handlePriceChange} required />
+        </label>
+        <label>
+          Quantity:
+          <input type="number" value={quantity} onChange={handleQuantityChange} required />
+        </label>
+        <label>
+          Total Balance:
+          <input
+            type="range"
+            min="0"
+            max="100"
+            step="20"
+            onChange={handleSliderChange}
+          />
+        </label>
+        <button type="submit">
+          {orderType.replace('_', ' ')}
+        </button>
+      </form>
+    </div>
   );
 };
 

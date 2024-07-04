@@ -3,28 +3,32 @@ import { placeOrder } from './services/apiService';
 import PriceChart from './components/PriceChart';
 import OrderBook from './components/OrderBook';
 import OrderForm from './components/OrderForm';
-import Balance from './components/Balance';
 
 const App = () => {
-  const [balances, setBalances] = useState({});
+  const [balance, setBalance] = useState(10000); // Example initial balance
 
-  const handleOrderPlaced = async (order) => {
-    try {
-      await placeOrder(order);
-      // Update balances and order book
-      // Fetch updated balances from the backend
-      console.log('Order placed successfully');
-    } catch (error) {
-      console.error('Failed to place order', error);
-    }
+  const handleBalanceChange = (e) => {
+    setBalance(parseFloat(e.target.value));
   };
 
   return (
-    <div className="App">
+    <div>
+      <h2>Crypto Trading Simulator</h2>
+      <div>
+        <label>
+          Initial Balance (USDT):
+          <input
+            type="number"
+            value={balance}
+            onChange={handleBalanceChange}
+            min="0"
+            step="0.01"
+          />
+        </label>
+      </div>
       <PriceChart />
       <OrderBook />
-      {/* <OrderForm onOrderPlaced={handleOrderPlaced} /> */}
-      <Balance balances={balances} />
+      <OrderForm balance={balance} />
     </div>
   );
 };
